@@ -4,15 +4,20 @@ import crypto from "crypto"
 import { error } from "console"
 
 const server = createServer(async (req, res)=>{
-  if(req.url === "/"){
-    const data = await readFile("public/index.html")
-    res.writeHead(200, {"content-type": "text/html"})
-    res.end(data)
-  } else if (req.url === "/style.css"){
-    const data = await readFile("public/style.css")
-    res.writeHead(200, {"content-type": "text/css"})
-    res.end(data)
+  if (req.url === "/") {
+    const data = await readFile("public/index.html");
+    res.writeHead(200, { "content-type": "text/html" });
+    res.end(data);
+  } else if (req.url === "/style.css") {
+    const data = await readFile("public/style.css");
+    res.writeHead(200, { "content-type": "text/css" });
+    res.end(data);
+  } else if (req.url === "/links") {
+    const data = await readFile("data/links.json", "utf-8");
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(data);
   }
+  
 
   if(req.method === "POST" && req.url == "/shorten"){
     let body = ""

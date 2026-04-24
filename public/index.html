@@ -32,12 +32,32 @@
   </div>
   <script>
     const form = document.getElementById('shorten-form')
+    const list = document.getElementById('shortened-urls')
 
-    form.addEventListener('submit', async (event)=>{
+    const fetchLinks = async () => {
+      const res = await fetch('links')
+      const data = await res.json()
+
+      list.innerHTML = ""
+
+      for (const [code, url] of Object.entries(data)) {
+        const li = document.createElement('li')
+
+        li.innerHTML = `
+          <a href="${window.location.origin}/${code}" target="_blank">
+            ${window.location.origin}/${code}
+          </a>
+        → ${url}
+`;
+
+        list.appendChild(li)
+      }
+    }
+
+    form.addEventListener('submit', async (event) => {
       event.preventDefault()
 
       const formData = new FormData(event.target)
-
       const url = formData.get('url')
       const shortcode = formData.get('shortcode')
 
@@ -50,13 +70,14 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({url, shortcode})
+          body: JSON.stringify({ url, shortcode })
         })
 
-        if(response.ok){
+        if (response.ok) {
           alert("URL Shorten successfully!")
           event.target.reset()
-        }else{
+          fetchLinks()
+        } else {
           const errorData = await response.json()
           alert(`Error: ${errorData.error}`)
         }
@@ -64,6 +85,8 @@
         console.error("Something went wrong: ", error)
       }
     })
+
+    fetchLinks()
   </script>
 </body>
 
