@@ -2,24 +2,37 @@ import {createServer} from "http"
 import { readFile, writeFile } from "fs/promises"
 import crypto from "crypto"
 import { error } from "console"
+import { link } from "fs"
 
 const server = createServer(async (req, res)=>{
-  if (req.url === "/") {
-    const data = await readFile("public/index.html");
-    res.writeHead(200, { "content-type": "text/html" });
-    res.end(data);
-  } else if (req.url === "/style.css") {
-    const data = await readFile("public/style.css");
-    res.writeHead(200, { "content-type": "text/css" });
-    res.end(data);
-  } else if (req.url === "/links") {
-    const data = await readFile("data/links.json", "utf-8");
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(data);
-  }
-  
+  if(req.method === "GET"){
+    if (req.url === "/") {
+      const data = await readFile("public/index.html");
+      res.writeHead(200, { "content-type": "text/html" });
+      res.end(data);
+    } else if (req.url === "/style.css") {
+      const data = await readFile("public/style.css");
+      res.writeHead(200, { "content-type": "text/css" });
+      res.end(data);
+    } else if (req.url === "/links") {
+      const data = await readFile("data/links.json", "utf-8");
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(data);
+    } else {
+      const code = req.url.slice(1);
 
-  if(req.method === "POST" && req.url == "/shorten"){
+      const data = await readFile("data/links.json", "utf-8");
+      const links = JSON.parse(data);
+
+      if (links[code]) {
+        res.writeHead(302, { location: links[code] });
+        res.end();
+      } else {
+        res.writeHead(404);
+        res.end("404 - short link not found");
+      }
+    }
+  }else if(req.method === "POST" && req.url == "/shorten"){
     let body = ""
 
     req.on("data", chunk => {
