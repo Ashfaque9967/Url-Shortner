@@ -33,7 +33,7 @@
   <script>
     const form = document.getElementById('shorten-form')
 
-    form.addEventListener('submit', (event)=>{
+    form.addEventListener('submit', async (event)=>{
       event.preventDefault()
 
       const formData = new FormData(event.target)
@@ -41,8 +41,28 @@
       const url = formData.get('url')
       const shortcode = formData.get('shortcode')
 
-      console.log('URL: ',url);
-      console.log('Shortcode: ', shortcode);
+      // console.log('URL: ',url);
+      // console.log('Shortcode: ', shortcode);
+
+      try {
+        const response = await fetch("/shorten", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({url, shortcode})
+        })
+
+        if(response.ok){
+          alert("URL Shorten successfully!")
+          event.target.reset()
+        }else{
+          const errorData = await response.json()
+          alert(`Error: ${errorData.error}`)
+        }
+      } catch (error) {
+        console.error("Something went wrong: ", error)
+      }
     })
   </script>
 </body>
